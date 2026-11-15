@@ -1,0 +1,11 @@
+node_modules
+.next
+data
+.shots
+.chrome-profile
+.chrome-golden
+*.tsbuildinfo
+.git
+.env
+.env.*
+deck.pptx
