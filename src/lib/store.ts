@@ -299,6 +299,10 @@ export class Repository {
     return Number(row.c);
   }
 
+  clearFailedAttempts(memberId: string): void {
+    this.db.prepare("DELETE FROM auth_attempts WHERE member_id = ? AND success = 0").run(memberId);
+  }
+
   /* ---------------- medicines ---------------- */
 
   listMedicines(circleId: string, activeOnly = true): Medicine[] {

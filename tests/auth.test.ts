@@ -13,7 +13,7 @@ import { createDatabase } from "@/lib/db";
 import { Repository } from "@/lib/store";
 import { attemptLogin, hashPasscode } from "@/lib/auth";
 
-const ids = { elder: "", bad: "", shape: "", lock: "" };
+const ids = { elder: "", bad: "", shape: "", lock: "", reset: "", demo: "" };
 
 beforeAll(async () => {
   const db: DatabaseSync = createDatabase(":memory:");
@@ -34,6 +34,7 @@ beforeAll(async () => {
     ["bad", "Bad Tries", "4321"],
     ["shape", "Shape Tries", "4321"],
     ["lock", "Locked Out", "1111"],
+    ["reset", "Reset Tries", "4321"],
   ] as const) {
     ids[key] = repo.addMember({
       circleId: circle.id,
@@ -44,6 +45,14 @@ beforeAll(async () => {
       phone: null,
     }).id;
   }
+
+  ids.demo = "demo-test";
+  repo.db
+    .prepare(
+      `INSERT INTO members (id, circle_id, name, role, passcode_hash, phone, email, is_demo, created_at)
+       VALUES (?,?,?,?,?,NULL,?,1,?)`,
+    )
+    .run(ids.demo, circle.id, "Demo Elder", "elder", await hashPasscode("1234"), "demo@example.com", new Date().toISOString());
 });
 
 describe("hashPasscode", () => {
@@ -92,5 +101,18 @@ describe("attemptLogin", () => {
   it("rejects an unknown member id", async () => {
     const result = await attemptLogin("does-not-exist", "1234");
     expect(result).toEqual({ ok: false, error: "That profile is no longer available." });
+  });
+
+  it("keeps the public demo profile usable after repeated failures", async () => {
+    for (let i = 0; i < 6; i += 1) await attemptLogin(ids.demo, "0000");
+    const result = await attemptLogin(ids.demo, "1234");
+    expect(result.ok).toBe(true);
+  });
+
+  it("clears the failure count after a successful sign-in", async () => {
+    for (let i = 0; i < 4; i += 1) await attemptLogin(ids.reset, "0000");
+    expect((await attemptLogin(ids.reset, "4321")).ok).toBe(true);
+    const next = await attemptLogin(ids.reset, "0000");
+    expect(next).toEqual({ ok: false, error: "Incorrect passcode. 4 attempts left." });
   });
 });

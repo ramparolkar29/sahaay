@@ -24,8 +24,11 @@ export async function attemptLogin(memberId: string, passcode: string): Promise<
   if (!secret) return { ok: false, error: "That profile is no longer available." };
 
   const since = new Date(Date.now() - LOCK_WINDOW_MINUTES * 60_000).toISOString();
-  const failures = repo.failedAttemptsSince(memberId, since);
-  if (failures >= MAX_FAILURES) {
+  // Demo passcodes are printed on the landing page, so a lockout there only takes
+  // the public demo down for the next visitor. Real profiles stay locked.
+  const lockable = !secret.member.isDemo;
+  const failures = lockable ? repo.failedAttemptsSince(memberId, since) : 0;
+  if (lockable && failures >= MAX_FAILURES) {
     return { ok: false, error: `Too many attempts. Try again in ${LOCK_WINDOW_MINUTES} minutes.` };
   }
 
@@ -40,6 +43,7 @@ export async function attemptLogin(memberId: string, passcode: string): Promise<
       error: left > 0 ? `Incorrect passcode. ${left} attempt${left === 1 ? "" : "s"} left.` : "Too many attempts. Please wait 15 minutes.",
     };
   }
+  repo.clearFailedAttempts(memberId);
   return { ok: true, member: secret.member };
 }
 
