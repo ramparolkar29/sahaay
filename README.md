@@ -2,8 +2,6 @@
 
 Sahaay (Hindi for *help*) is a shared care companion for families managing an elderly parent's medication. The elder, the caretaker and the family share **one healthcare profile behind a family passcode** — and every reminder, dose and appointment leaves a named trail.
 
-Built for **PromptWars · Catalyst** (Elderly Care & Medication Management).
-
 > **Live demo:** [sahaay-green-beta.vercel.app](https://sahaay-green-beta.vercel.app) — open the Sharma family demo circle, then use passcode `1234` (elder), `2580` (caretaker) or `1990` (family). Deploy notes: [`docs/DEPLOY.md`](docs/DEPLOY.md).
 
 ![Today dashboard](docs/screenshots/dashboard.png)
