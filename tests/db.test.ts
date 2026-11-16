@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { compare } from "bcryptjs";
-import { createDatabase, DEMO_PASSCODES, seedDemo } from "@/lib/db";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { createDatabase, DEMO_PASSCODES, seedDemo, sessionSecret } from "@/lib/db";
 import { Repository } from "@/lib/store";
 
 const count = (db: ReturnType<typeof createDatabase>, table: string) =>
@@ -78,5 +81,57 @@ describe("activity trail", () => {
     expect(entries[0].message).toBe("Marked morning dose taken");
     expect(entries[0].memberName).toBe("Asha Rao");
     expect(repo.listActivity(circle.id, 1)).toHaveLength(1);
+  });
+});
+
+describe("sessionSecret", () => {
+  async function withSecret(env: { nodeEnv: string; secret: string }, run: () => void) {
+    const { vi } = await import("vitest");
+    const dir = mkdtempSync(path.join(tmpdir(), "sahaay-secret-"));
+    vi.stubEnv("NODE_ENV", env.nodeEnv);
+    vi.stubEnv("SESSION_SECRET", env.secret);
+    vi.spyOn(process, "cwd").mockReturnValue(dir);
+    try {
+      run();
+    } finally {
+      vi.unstubAllEnvs();
+      vi.restoreAllMocks();
+    }
+    const file = path.join(dir, "data", ".session-secret");
+    const created = (() => {
+      try {
+        return readFileSync(file, "utf8");
+      } catch {
+        return null;
+      }
+    })();
+    rmSync(dir, { recursive: true, force: true });
+    return created;
+  }
+
+  it("requires a 32 character secret in production", async () => {
+    const { vi } = await import("vitest");
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("SESSION_SECRET", "too-short");
+    expect(() => sessionSecret()).toThrow(/SESSION_SECRET/);
+    vi.unstubAllEnvs();
+  });
+
+  it("uses a configured secret as UTF-8 bytes", async () => {
+    const secret = "s".repeat(32);
+    const { vi } = await import("vitest");
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("SESSION_SECRET", secret);
+    expect(new TextDecoder().decode(sessionSecret())).toBe(secret);
+    vi.unstubAllEnvs();
+  });
+
+  it("generates a dev secret file and reuses it across restarts", async () => {
+    const file = await withSecret({ nodeEnv: "development", secret: "" }, () => {
+      const first = new TextDecoder().decode(sessionSecret());
+      expect(first).toMatch(/^[0-9a-f]{64}$/);
+      expect(new TextDecoder().decode(sessionSecret())).toBe(first);
+    });
+    expect(file).toMatch(/^[0-9a-f]{64}$/);
   });
 });

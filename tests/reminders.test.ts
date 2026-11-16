@@ -153,4 +153,48 @@ describe("buildReminderDrafts", () => {
     const second = buildReminderDrafts(input);
     expect(first[0].dedupeKey).toBe(second[0].dedupeKey);
   });
+
+  it("phrases a recent miss in minutes rather than hours", () => {
+    const quick = { ...circle, missedGraceMinutes: 15 };
+    const drafts = buildReminderDrafts({
+      circle: quick,
+      members,
+      medicines: [makeMedicine({ times: ["07:00"] })],
+      logs: [],
+      appointments: [],
+      now,
+    });
+    const missed = drafts.find((draft) => draft.kind === "dose-missed");
+    expect(missed?.body).toContain("40 min ago");
+    expect(missed?.body).not.toContain("0 h");
+  });
+
+  it("falls back to the elder's email and a single-name greeting", () => {
+    const onlyElder = members.filter((member) => member.role === "elder");
+    const drafts = buildReminderDrafts({
+      circle,
+      members: onlyElder,
+      medicines: [makeMedicine({ times: ["08:00"] })],
+      logs: [],
+      appointments: [],
+      now,
+    });
+    expect(drafts[0].toEmail).toBe("kamla@example.com");
+    expect(drafts[0].body).toContain("Hi Kamla,");
+  });
+
+  it("flags an escalation when no emergency contact is saved", () => {
+    const noContact = { ...circle, emergencyContact: null };
+    const medicines = ["a", "b", "c"].map((id) => makeMedicine({ id, times: ["06:00"] }));
+    const drafts = buildReminderDrafts({ circle: noContact, members, medicines, logs: [], appointments: [], now });
+    const escalation = drafts.find((draft) => draft.kind === "escalation");
+    expect(escalation?.body).toContain("not added yet");
+  });
+
+  it("omits optional appointment details that are not set", () => {
+    const bare = { ...appointment(new Date(now.getTime() + 5 * 3_600_000).toISOString()), doctor: null, location: null, notes: null };
+    const drafts = buildReminderDrafts({ circle, members, medicines: [], logs: [], appointments: [bare], now });
+    expect(drafts[0].body).not.toContain("undefined");
+    expect(drafts[0].body).toContain("Cardiology review");
+  });
 });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildDayDoses, doseStatus, medicineRunsOn, pickNextDose, slotsForDate } from "@/lib/schedule";
+import { buildDayDoses, doseStatus, medicineRunsOn, pickNextDose, scheduleSummary, slotsForDate } from "@/lib/schedule";
 import { addDays, lastDays, timeLabel, weekdayOf, zonedMoment, zonedTimeToUtc } from "@/lib/time";
 import { makeLog, makeMedicine } from "./fixtures";
 
@@ -138,5 +138,17 @@ describe("buildDayDoses", () => {
       dayOffset: 0,
     });
     expect(pickNextDose(doses, 9 * 60)).toBeNull();
+  });
+});
+
+describe("scheduleSummary", () => {
+  it("describes a daily schedule", () => {
+    const summary = scheduleSummary(makeMedicine({ times: ["08:00", "20:00"], days: [] }));
+    expect(summary).toBe("Every day · 8:00 am · 8:00 pm");
+  });
+
+  it("lists the selected weekdays", () => {
+    const summary = scheduleSummary(makeMedicine({ times: ["09:30"], days: [1, 4] }));
+    expect(summary).toBe("Mon, Thu · 9:30 am");
   });
 });

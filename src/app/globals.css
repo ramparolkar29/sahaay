@@ -484,6 +484,44 @@ ul { margin: 0; padding: 0; list-style: none; }
 .public-inner { width: 100%; max-width: 560px; display: grid; gap: 22px; }
 .auth-card { padding: clamp(22px, 4vw, 38px); border-radius: 30px; }
 
+.auth-split {
+  width: 100%;
+  max-width: 1000px;
+  display: grid;
+  grid-template-columns: minmax(0, 500px) minmax(0, 1fr);
+  gap: clamp(20px, 3.4vw, 44px);
+  align-items: center;
+}
+.auth-pane { display: grid; gap: 20px; }
+.auth-art {
+  position: relative;
+  margin: 0;
+  min-height: 560px;
+  align-self: stretch;
+  display: flex;
+  align-items: flex-end;
+  padding: clamp(20px, 2.6vw, 30px);
+  border-radius: 30px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 125, 175, 0.24);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+}
+.auth-art-img { object-fit: cover; }
+.auth-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(5, 12, 16, 0.06) 34%, rgba(5, 12, 16, 0.92));
+  pointer-events: none;
+}
+.auth-art-body { position: relative; z-index: 1; display: grid; gap: 12px; }
+.auth-art-body .h2 { font-size: 1.45rem; color: #fff; }
+.auth-art-body .check-list li { color: rgba(238, 246, 248, 0.82); }
+@media (max-width: 1020px) {
+  .auth-split { grid-template-columns: minmax(0, 1fr); max-width: 560px; }
+  .auth-art { display: none; }
+}
+
 .big-title { font-size: clamp(2rem, 1.3rem + 3vw, 3.1rem); letter-spacing: -0.03em; line-height: 1.05; }
 .lede { font-size: 1.05rem; color: var(--muted); }
 

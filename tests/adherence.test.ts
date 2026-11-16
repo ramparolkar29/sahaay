@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildAdherence } from "@/lib/adherence";
+import { buildAdherence, missedDoses, nextSevenDays } from "@/lib/adherence";
 import { makeLog, makeMedicine } from "./fixtures";
 
 describe("buildAdherence", () => {
@@ -51,5 +51,22 @@ describe("buildAdherence", () => {
     });
     expect(empty.pct).toBe(100);
     expect(empty.total).toBe(0);
+  });
+});
+
+describe("missedDoses and nextSevenDays", () => {
+  const today = "2026-11-15";
+
+  it("returns only the doses that are past the grace window", () => {
+    const medicine = makeMedicine({ times: ["08:00", "20:00"] });
+    const late = missedDoses([medicine], [], today, 12 * 60, 90);
+    expect(late.map((dose) => dose.time)).toEqual(["08:00"]);
+
+    const caughtUp = missedDoses([medicine], [makeLog({ slotTime: "08:00" })], today, 12 * 60, 90);
+    expect(caughtUp).toHaveLength(0);
+  });
+
+  it("starts the window on the given day", () => {
+    expect(nextSevenDays(today, 3)).toEqual(["2026-11-15", "2026-11-16", "2026-11-17"]);
   });
 });

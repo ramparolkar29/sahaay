@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { DEMO_PASSCODES } from "@/lib/db";
@@ -75,30 +76,61 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
 
   return (
     <div className="public-wrap">
-      <div className="public-inner">
-        <Brand subtitle={circle.name} />
+      <div className="auth-split">
+        <div className="auth-pane">
+          <Brand subtitle={circle.name} />
 
-        <div className="card auth-card stack">
-          <div className="row" style={{ gap: 16 }}>
-            <Avatar name={member.name} large />
-            <div>
-              <p className="eyebrow">Sign in</p>
-              <h1 className="h1" style={{ fontSize: "1.6rem" }}>
-                {member.name}
-              </h1>
-              <p className="small muted">{circle.name} · {circle.elderName}</p>
+          <div className="card auth-card stack">
+            <div className="row" style={{ gap: 16 }}>
+              <Avatar name={member.name} large />
+              <div>
+                <p className="eyebrow">Sign in</p>
+                <h1 className="h1" style={{ fontSize: "1.6rem" }}>
+                  {member.name}
+                </h1>
+                <p className="small muted">{circle.name} · {circle.elderName}</p>
+              </div>
             </div>
+
+            <hr className="divider" />
+
+            <PasscodeKeypad memberId={member.id} demoCode={demoCode} />
           </div>
 
-          <hr className="divider" />
-
-          <PasscodeKeypad memberId={member.id} demoCode={demoCode} />
+          <Link href="/" className="small muted row" style={{ gap: 6, justifyContent: "center" }}>
+            <Icon name="arrow" size={15} style={{ transform: "rotate(180deg)" }} />
+            Not you? Choose another profile
+          </Link>
         </div>
 
-        <Link href="/" className="small muted row" style={{ gap: 6, justifyContent: "center" }}>
-          <Icon name="arrow" size={15} style={{ transform: "rotate(180deg)" }} />
-          Not you? Choose another profile
-        </Link>
+        <aside className="auth-art" aria-label="How Sahaay keeps the circle safe">
+          <Image
+            src="/images/evening-care.png"
+            alt="Illustration of a calm evening at home with a medication tray and a warm lamp"
+            fill
+            priority
+            sizes="(max-width: 1020px) 0px, 460px"
+            className="auth-art-img"
+          />
+          <div className="auth-art-body">
+            <p className="eyebrow">Shared care</p>
+            <h2 className="h2">One quiet place for the whole family.</h2>
+            <ul className="check-list">
+              <li>
+                <Icon name="shield" size={16} />
+                Each person signs in with their own passcode — never a shared password.
+              </li>
+              <li>
+                <Icon name="pulse" size={16} />
+                Doses, visits and appointments stay in one live timeline.
+              </li>
+              <li>
+                <Icon name="mail" size={16} />
+                Missed doses reach the family by email, not by luck.
+              </li>
+            </ul>
+          </div>
+        </aside>
       </div>
     </div>
   );

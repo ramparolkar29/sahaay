@@ -251,6 +251,27 @@ describe("runReminderScan", () => {
     expect(result.queued).toBe(0);
     expect(result.reason).toContain("No email on file");
   });
+
+  it("says the schedule is clear when email exists but nothing needs a nudge", () => {
+    const { circle } = makeCircle("Sharma family");
+
+    const result = runReminderScan(repo, circle.id, new Date("2026-11-15T02:10:00Z"));
+    expect(result).toMatchObject({ queued: 0, duplicates: 0, considered: 0 });
+    expect(result.reason).toContain("Nothing needs a reminder");
+  });
+
+  it("scans every circle and ignores an unknown circle id", () => {
+    const a = makeCircle("A family");
+    const b = makeCircle("B family");
+
+    const all = runReminderScan(repo, undefined, new Date("2026-11-15T02:10:00Z"));
+    expect(all.queued).toBe(0);
+    expect(all.reason).toContain("Nothing needs a reminder");
+
+    const missing = runReminderScan(repo, "not-a-circle", new Date("2026-11-15T02:10:00Z"));
+    expect(missing).toEqual({ queued: 0, duplicates: 0, considered: 0, reason: undefined });
+    expect(a.circle.id).not.toBe(b.circle.id);
+  });
 });
 
 describe("auth attempts", () => {
