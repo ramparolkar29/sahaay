@@ -741,7 +741,6 @@ ul { margin: 0; padding: 0; list-style: none; }
 .landing-inner { max-width: 1120px; gap: 30px; }
 
 .landing-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-.landing-badge { letter-spacing: 0.02em; }
 
 .landing-hero {
   display: grid;

@@ -51,10 +51,6 @@ export default async function LandingPage() {
       <div className="public-inner landing-inner">
         <header className="landing-top">
           <Brand subtitle="Shared care for ageing parents" />
-          <span className="pill pill-accent landing-badge">
-            <Icon name="sparkle" size={14} />
-            PromptWars · Catalyst 2026
-          </span>
         </header>
 
         <section className="landing-hero" aria-labelledby="landing-title">
@@ -266,7 +262,6 @@ export default async function LandingPage() {
         </section>
 
         <footer className="landing-footer">
-          <span className="tiny muted">Built solo for CATALYST 2026.</span>
           <span className="tiny muted">Demo passcodes: elder 1234 · caretaker 2580 · family 1990</span>
         </footer>
       </div>
