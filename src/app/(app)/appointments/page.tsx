@@ -64,7 +64,6 @@ export default async function AppointmentsPage({ searchParams }: { searchParams:
             const parts = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: circle.timezone }).formatToParts(starts);
             const day = parts.find((part) => part.type === "day")?.value ?? "";
             const month = parts.find((part) => part.type === "month")?.value ?? "";
-            const weekday = new Intl.DateTimeFormat("en-GB", { weekday: "short", timeZone: circle.timezone }).format(starts);
             const dayDelta = Math.round((starts.getTime() - now) / 86_400_000);
 
             return (

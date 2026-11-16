@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { recordDoseAction, runScanAction } from "@/app/actions";
-import { AdherenceRing, StatusPill } from "@/components/StatusPill";
+import { AdherenceRing } from "@/components/StatusPill";
 import { Avatar } from "@/components/Brand";
 import { DoseRow } from "@/components/DoseRow";
 import { ElderHome } from "@/components/ElderHome";

@@ -16,9 +16,11 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Typecheck
+        run: npm run typecheck
+      - name: Lint
         run: npm run lint
       - name: Tests
-        run: npm test
+        run: npm run test:coverage
       - name: Build
         run: npm run build
         env:
